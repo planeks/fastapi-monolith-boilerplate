@@ -1,2 +1,2 @@
 # fastapi-monolith-boilerplate
-A boilerplate for FastAPI monolith application
+A boilerplate for the FastAPI monolith application

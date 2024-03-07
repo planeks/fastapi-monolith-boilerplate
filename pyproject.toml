@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "fastapi-monolith-boilerplate"
+version = "0.1.0"
+description = "A boilerplate for FastAPI monolith application"
+authors = ["Borys Lemeshko"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+alembic = "^1.13.1"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+uvicorn = "^0.27.1"
+pydantic-settings = "^2.2.1"
+asyncpg = "^0.29.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.2.0"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
