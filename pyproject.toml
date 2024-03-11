@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A boilerplate for FastAPI monolith application"
 authors = ["Borys Lemeshko"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
