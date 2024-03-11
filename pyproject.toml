@@ -13,6 +13,8 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
 uvicorn = "^0.27.1"
 pydantic-settings = "^2.2.1"
 asyncpg = "^0.29.0"
+passlib = "^1.7.4"
+fastapi-users = {extras = ["sqlalchemy"], version = "^12.1.3"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
