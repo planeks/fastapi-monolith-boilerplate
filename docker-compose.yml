@@ -10,7 +10,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./:/app:cached
+      - ./src:/app/src:cached
     env_file:
       - .env
     ports:

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.ext.declarative import declarative_base
 from src.settings import settings
 
+
 SQLALCHEMY_DB_URL = (
     f"postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_password}@"
     f"{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"

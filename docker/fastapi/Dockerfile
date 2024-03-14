@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM --platform=linux/amd64 python:3.11-bullseye
 
 ENV PYTHONPATH /app
 
@@ -13,7 +13,4 @@ RUN poetry install --no-root
 
 COPY . /app
 
-
-CMD [ "poetry", "run", "python", "src/app.py" ]
-# ENTRYPOINT [ "scripts/start.sh" ]
-# ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "scripts/start.sh" ]

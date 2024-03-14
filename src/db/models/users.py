@@ -15,9 +15,9 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 
-from settings import settings
+from src.settings import settings
 
-from db.config import Base, get_async_session
+from src.db.config import Base, get_async_session
 
 SECRET = settings.secret_key
 
