@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "A boilerplate for FastAPI monolith application"
 authors = ["Borys Lemeshko"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -16,6 +15,7 @@ pydantic-settings = "^2.2.1"
 asyncpg = "^0.29.0"
 passlib = "^1.7.4"
 fastapi-users = {extras = ["sqlalchemy"], version = "^12.1.3"}
+pydantic-core = {version = "^2.16.3", platform = "linux"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"

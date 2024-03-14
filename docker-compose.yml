@@ -7,7 +7,8 @@ services:
       dockerfile: ./docker/fastapi/Dockerfile
     image: "fastapi_dev"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./:/app:cached
     env_file:
@@ -26,6 +27,11 @@ services:
       - ./.env
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   # minio: # Use minio for local S3 storage
   #   image: quay.io/minio/minio:RELEASE.2022-01-08T03-11-54Z
   #   command: server /data --console-address ":9001"

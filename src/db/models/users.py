@@ -1,19 +1,38 @@
 import uuid
-from typing import Optional
+from typing import Optional, AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import Depends, Request
+from fastapi_users_db_sqlalchemy import (
+    SQLAlchemyUserDatabase,
+    SQLAlchemyBaseUserTableUUID,
+)
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
     JWTStrategy,
 )
-from src.db.config import User, get_user_db
 
-SECRET = "SECRET"
+from settings import settings
+
+from db.config import Base, get_async_session
+
+SECRET = settings.secret_key
+
+
+class User(SQLAlchemyBaseUserTableUUID, Base):
+    """User model"""
+
+
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+    """Yields SQLAlchemyUserDatabase"""
+    yield SQLAlchemyUserDatabase(session, User)
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
+    """UserManager for User model"""
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
@@ -31,7 +50,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
 
-async def get_user_manager(user_db = Depends(get_user_db)):
+async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
 

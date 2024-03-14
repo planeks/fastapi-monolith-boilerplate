@@ -13,4 +13,7 @@ RUN poetry install --no-root
 
 COPY . /app
 
+
 CMD [ "poetry", "run", "python", "src/app.py" ]
+# ENTRYPOINT [ "scripts/start.sh" ]
+# ENTRYPOINT [ "/bin/bash" ]
