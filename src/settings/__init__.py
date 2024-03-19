@@ -2,14 +2,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Application settings."""
 
     api_prefix: str = "/api"
 
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     app_reload: bool = True
-    
+
     secret_key: str = "secret"
+
+    cors_origins: str = "*"
 
     # DB settings
     postgres_db: str
