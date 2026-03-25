@@ -1,0 +1,65 @@
+# ============================================================================
+# Ansible Connection Configuration
+# ============================================================================
+ansible_user: "{{ lookup('env', 'ANSIBLE_REMOTE_USER') | default('ubuntu') }}"
+ansible_python_interpreter: /usr/bin/python3
+
+# ============================================================================
+# Project Configuration
+# ============================================================================
+project_name: "{{ lookup('env', 'PROJECT_NAME') | default('fastapi_app') }}"
+
+# Application user - the non-root user that owns the application files
+app_user: "{{ lookup('env', 'APP_USER') | default('ubuntu') }}"
+app_dir: /home/{{ app_user }}/projects/{{ project_name }}
+
+# ============================================================================
+# Domain and SSL Configuration
+# ============================================================================
+domain_name: "{{ lookup('env', 'DOMAIN_NAME') }}"
+
+# ============================================================================
+# Database Configuration
+# ============================================================================
+db_name: db
+db_user: dbuser
+db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
+
+# ============================================================================
+# Git Repository Configuration
+# ============================================================================
+git_repo_url: "{{ lookup('env', 'GIT_REPO_URL') | default(lookup('pipe', 'git remote get-url origin 2>/dev/null | sed -E \"s#.*/git/([^/]+/[^/]+).*#git@github.com:\\1.git#\" || echo \"\"', errors='ignore') | default('', true), true) }}"
+git_branch: "{{ lookup('env', 'GIT_BRANCH') | default(lookup('pipe', 'git rev-parse --abbrev-ref HEAD 2>/dev/null || echo \"main\"', errors='ignore') | default('main', true), true) }}"
+
+generate_deploy_key: true
+
+# ============================================================================
+# Monitoring Configuration
+# ============================================================================
+enable_monitoring: true
+node_exporter_version: "1.8.2"
+promtail_version: "3.0.0"
+install_node_exporter: true
+install_promtail: false
+
+# ============================================================================
+# Backup Configuration
+# ============================================================================
+backup_retention_days: 30
+
+# ============================================================================
+# Application Secrets
+# ============================================================================
+app_secret_key: "{{ lookup('env', 'SECRET_KEY') | default('') }}"
+
+# ============================================================================
+# GitHub Actions Integration
+# ============================================================================
+setup_github_actions: true
+create_env_template: true
+
+# ============================================================================
+# Deployment Options
+# ============================================================================
+deploy_app: false
+auto_reboot: false

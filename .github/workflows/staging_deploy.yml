@@ -1,0 +1,22 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: [test]
+    uses: ./.github/workflows/deploy-reusable.yml
+    with:
+      environment: staging
+      branch: staging
+      compose-file: compose.prod.yml
+    secrets:
+      host: ${{ secrets.STAGING_HOST }}
+      ssh-key: ${{ secrets.STAGING_SSH_KEY }}
+      username: ${{ secrets.STAGING_SSH_USER }}

@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  # Called by staging/production deploy workflows before deploying
+  workflow_call: {}
+  pull_request:
+    branches: [develop, staging, main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - '.pre-commit-config.yaml'
+
+# Cancel in-progress runs on the same PR when a new push arrives,
+# so we don't burn Actions minutes on outdated commits
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_migration_conflicts:
+    name: Check Migration Conflicts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Check for multiple Alembic heads
+        run: |
+          HEADS=$(uv run alembic heads 2>/dev/null | wc -l)
+          if [ "$HEADS" -gt 1 ]; then
+            echo "::error::Multiple Alembic heads detected! Merge your migrations."
+            uv run alembic heads
+            exit 1
+          fi
+          echo "Single Alembic head — no migration conflicts."
+
+  lint:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: uv sync --frozen
+
+    - name: Ruff check
+      run: uv run ruff check src/
+
+    - name: Ruff format check
+      run: uv run ruff format --check src/
+
+    # Provides warnings for vulnerable dependencies, but doesn't fail the job
+    - name: Audit Python dependencies
+      continue-on-error: true
+      run: |
+        uv pip install pip-audit
+        uv export --no-hashes -o /tmp/requirements.txt
+        pip-audit -r /tmp/requirements.txt
+
+  test:
+    name: Test Backend
+    # Skip tests on PRs to develop — lint is enough to save actions minutes.
+    # Tests still run for staging/production deploys via workflow_call
+    # (github.base_ref is empty for workflow_call, so this condition passes).
+    if: ${{ github.base_ref != 'develop' && !failure() && !cancelled() }}
+    needs: [lint, check_migration_conflicts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Create test .env file
+      run: cp .env.example .env
+
+    - name: Build Docker images
+      run: docker compose -f compose.dev.yml build
+
+    - name: Run tests
+      run: docker compose -f compose.dev.yml run --rm fastapi uv run pytest
+
+    - name: Cleanup
+      if: always()
+      run: docker compose -f compose.dev.yml down -v

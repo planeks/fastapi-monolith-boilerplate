@@ -1,0 +1,59 @@
+name: Reusable Deploy Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: string
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        type: string
+      compose-file:
+        description: 'Docker compose file'
+        required: false
+        type: string
+        default: 'compose.dev.yml'
+      project-path:
+        description: 'Project path on server'
+        required: false
+        type: string
+        default: '~/projects/fastapi_app'
+    secrets:
+      host:
+        description: 'Server hostname'
+        required: true
+      ssh-key:
+        description: 'SSH private key'
+        required: true
+      username:
+        description: 'SSH username'
+        required: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Deploy via SSH with automated backup and rollback
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.host }}
+          username: ${{ secrets.username || 'appuser' }}
+          key: ${{ secrets.ssh-key }}
+          script: |
+            PROJECT_PATH=$(echo "${{ inputs.project-path }}" | sed "s|^~|$HOME|")
+            cd $PROJECT_PATH
+
+            # Make deploy script executable
+            chmod +x scripts/deploy.sh
+
+            # Run deployment with backup, rollback, and health checks
+            ./scripts/deploy.sh "${{ inputs.compose-file }}" "${{ inputs.branch }}" "$PROJECT_PATH"
