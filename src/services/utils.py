@@ -1,11 +1,12 @@
-from passlib.context import CryptContext
+from fastapi_users.password import PasswordHelper
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_helper = PasswordHelper()
 
 
 def get_hashed_password(password: str) -> str:
-    return password_context.hash(password)
+    return password_helper.hash(password)
 
 
 def verify_password(password: str, hashed_pass: str) -> bool:
-    return password_context.verify(password, hashed_pass)
+    verified, _ = password_helper.verify_and_update(password, hashed_pass)
+    return verified
