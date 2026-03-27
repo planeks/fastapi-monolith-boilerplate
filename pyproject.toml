@@ -3,7 +3,6 @@ name = "fastapi-monolith-boilerplate"
 version = "0.1.0"
 description = "A boilerplate for FastAPI monolith application"
 authors = [{ name = "Borys Lemeshko" }]
-readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "fastapi>=0.135.2",

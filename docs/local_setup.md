@@ -60,7 +60,7 @@ APP_HOST=localhost
 APP_PORT=8000
 APP_RELOAD=true
 API_PREFIX="/api"
-CORS_ORIGINS="*"
+CORS_ORIGINS="http://localhost,http://localhost:8000"
 ```
 
 Generate a secret key:

@@ -35,9 +35,9 @@ POSTGRES_PORT=5432
 SECRET_KEY="<generate-a-secret-key>"
 APP_HOST=localhost
 APP_PORT=8000
-APP_RELOAD=true
+APP_RELOAD=false
 API_PREFIX="/api"
-CORS_ORIGINS="*"
+CORS_ORIGINS="http://localhost,http://localhost:8000"
 ```
 
 ## 4. Set up PostgreSQL
