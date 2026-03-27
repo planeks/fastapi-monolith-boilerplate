@@ -1,0 +1,70 @@
+x-fastapi-common: &fastapi-common
+  restart: always
+  image: "${COMPOSE_PROJECT_NAME:-fastapi}_prod"
+  depends_on:
+    postgres:
+      condition: service_healthy
+  env_file:
+    - .env
+  logging:
+    driver: journald
+    options:
+      tag: "{{.Name}}"
+
+services:
+  fastapi:
+    <<: *fastapi-common
+    build:
+      context: .
+      dockerfile: ./docker/fastapi/Dockerfile
+    command: uvicorn src.app:app --host 0.0.0.0 --port 8000 --workers 4
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    image: "${COMPOSE_PROJECT_NAME:-fastapi}_prod_postgres"
+    restart: always
+    volumes:
+      - prod_postgres:/var/lib/postgresql/data:Z
+      - prod_backups:/backups:z
+    env_file:
+      - .env
+    logging:
+      driver: journald
+      options:
+        tag: "{{.Name}}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  caddy:
+    build:
+      context: .
+      dockerfile: ./docker/caddy/Dockerfile
+    image: "${COMPOSE_PROJECT_NAME:-fastapi}_prod_caddy"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - prod_caddy:/data
+      - caddy_config:/config
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /var/log/caddy:/var/log/caddy
+    env_file:
+      - .env
+    depends_on:
+      - fastapi
+    logging:
+      driver: journald
+      options:
+        tag: "{{.Name}}"
+
+volumes:
+  prod_postgres:
+  prod_backups:
+  prod_caddy:
+  caddy_config:
