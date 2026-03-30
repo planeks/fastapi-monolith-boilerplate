@@ -1,16 +1,15 @@
-FROM --platform=linux/amd64 python:3.11-bullseye
+FROM --platform=linux/amd64 python:3.13-slim-bookworm
 
-ENV PYTHONPATH /app
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
-RUN python -m pip install poetry
+ENV PYTHONPATH=/app
 
 WORKDIR /app
 
-COPY poetry.lock /app
-COPY pyproject.toml /app
+COPY uv.lock pyproject.toml /app/
 
-RUN poetry install --no-root
+RUN uv sync --frozen --no-dev
 
 COPY . /app
 
-ENTRYPOINT [ "scripts/start.sh" ]
+ENTRYPOINT ["scripts/start.sh"]

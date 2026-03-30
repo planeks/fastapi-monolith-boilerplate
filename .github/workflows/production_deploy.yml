@@ -1,0 +1,28 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  require-approval:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Prod requires environment approval in UI."
+
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: [test]
+    uses: ./.github/workflows/deploy-reusable.yml
+    with:
+      environment: production
+      branch: main
+      compose-file: compose.prod.yml
+    secrets:
+      host: ${{ secrets.PROD_HOST }}
+      ssh-key: ${{ secrets.PROD_SSH_KEY }}
+      username: ${{ secrets.PROD_SSH_USER }}
