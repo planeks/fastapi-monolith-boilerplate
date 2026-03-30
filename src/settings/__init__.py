@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     cors_origins: str = "*"
 
+    site_domain: str = "localhost"
+
     # DB settings
     postgres_db: str
     postgres_user: str

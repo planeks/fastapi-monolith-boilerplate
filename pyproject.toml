@@ -17,6 +17,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.15.7",
+    "pytest>=8.0.0",
+    "httpx>=0.28.0",
 ]
 
 [build-system]
@@ -49,3 +51,7 @@ ignore = [
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
