@@ -1,7 +1,11 @@
 #!/bin/bash
 echo "Applying database migrations"
-# run alembic upgrade head to apply the latest migration
 uv run alembic upgrade head
+
+# If a command was passed (e.g. "uv run pytest"), run it instead of the server
+if [ $# -gt 0 ]; then
+    exec "$@"
+fi
+
 echo "Starting FastAPI application"
-# run the FastAPI application
-uv run python src/app.py
+exec uv run python src/app.py
